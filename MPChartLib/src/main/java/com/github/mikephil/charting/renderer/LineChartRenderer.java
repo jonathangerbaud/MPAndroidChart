@@ -591,7 +591,7 @@ public class LineChartRenderer extends LineRadarRenderer {
 
     @Override
     public void drawExtras(Canvas c) {
-        drawCircles(c);
+        //drawCircles(c);
     }
 
     /**
