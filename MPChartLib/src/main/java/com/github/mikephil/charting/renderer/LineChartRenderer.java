@@ -324,9 +324,10 @@ public class LineChartRenderer extends LineRadarRenderer {
             if (mLineBuffer.length <= pointsPerEntryPair * 2)
                 mLineBuffer = new float[pointsPerEntryPair * 4];
 
-            for (int j = mXBounds.min; j <= mXBounds.range + mXBounds.min; j++) {
+            Entry e;
+            for (int j = mXBounds.min, n = mXBounds.range + mXBounds.min; j <= n; j++) {
 
-                Entry e = dataSet.getEntryForIndex(j);
+                e = dataSet.getEntryForIndex(j);
                 if (e == null) continue;
 
                 mLineBuffer[0] = e.getX();
@@ -362,10 +363,10 @@ public class LineChartRenderer extends LineRadarRenderer {
 
                 // make sure the lines don't do shitty things outside
                 // bounds
-                if (!mViewPortHandler.isInBoundsLeft(mLineBuffer[2])
+                /*if (!mViewPortHandler.isInBoundsLeft(mLineBuffer[2])
                         || (!mViewPortHandler.isInBoundsTop(mLineBuffer[1]) && !mViewPortHandler
                         .isInBoundsBottom(mLineBuffer[3])))
-                    continue;
+                    continue;*/
 
                 // get the color that is set for this line-segment
                 mRenderPaint.setColor(dataSet.getColor(j));
