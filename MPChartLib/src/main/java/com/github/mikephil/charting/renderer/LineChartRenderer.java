@@ -389,7 +389,7 @@ public class LineChartRenderer extends LineRadarRenderer {
 //                    mLineBuffer[3] = mLineBuffer[1];
                 }
 
-//                trans.pointValuesToPixel(mLineBuffer);
+                //trans.pointValuesToPixel(mLineBuffer);
 
                 if (!mViewPortHandler.isInBoundsRight(points.get(0)))
                     break;
@@ -419,8 +419,10 @@ public class LineChartRenderer extends LineRadarRenderer {
                 for (int k = 0; k < points.size(); k++)
                     values[i] = points.get(k);
 
+                trans.pointValuesToPixel(values);
+
                 mRenderPaint.setColor(color);
-                canvas.drawLines(mLineBuffer, 0, pointsPerEntryPair * 2, mRenderPaint);
+                canvas.drawLines(values, 0, pointsPerEntryPair * 2, mRenderPaint);
             }
 
         } else { // only one color per dataset
