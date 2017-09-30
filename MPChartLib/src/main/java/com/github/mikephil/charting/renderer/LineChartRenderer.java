@@ -457,7 +457,7 @@ public class LineChartRenderer extends LineRadarRenderer {
                     if (j < mXBounds.max) {
 
                         e2 = dataSet.getEntryForIndex(j + 1);
-                        Log.d("LineChartRenderer", "drawLinear: " + e1.getY() + " " + e2.getY() + dataSet.getColor(j));
+
                         if (e2 == null) break;
 
                         if (isDrawSteppedEnabled) {
