@@ -6,6 +6,9 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.drawable.Drawable;
+import android.util.Log;
+import android.util.SparseArray;
+import android.util.SparseIntArray;
 
 import com.github.mikephil.charting.animation.ChartAnimator;
 import com.github.mikephil.charting.charts.LineChart;
@@ -24,8 +27,12 @@ import com.github.mikephil.charting.utils.Utils;
 import com.github.mikephil.charting.utils.ViewPortHandler;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class LineChartRenderer extends LineRadarRenderer {
 
@@ -321,17 +328,30 @@ public class LineChartRenderer extends LineRadarRenderer {
         // more than 1 color
         if (dataSet.getColors().size() > 1) {
 
+            SparseArray<ArrayList<Float>> map = new SparseArray<>();
+
+            for (Integer color : dataSet.getColors())
+            {
+                map.append(color, new ArrayList<Float>());
+            }
+
             if (mLineBuffer.length <= pointsPerEntryPair * 2)
                 mLineBuffer = new float[pointsPerEntryPair * 4];
 
             Entry e;
+            ArrayList<Float> points;
             for (int j = mXBounds.min, n = mXBounds.range + mXBounds.min; j <= n; j++) {
 
                 e = dataSet.getEntryForIndex(j);
                 if (e == null) continue;
 
-                mLineBuffer[0] = e.getX();
-                mLineBuffer[1] = e.getY() * phaseY;
+                points = map.get(dataSet.getColor(j));
+
+                points.add(e.getX());
+                points.add(e.getY() * phaseY);
+
+//                mLineBuffer[0] = e.getX();
+//                mLineBuffer[1] = e.getY() * phaseY;
 
                 if (j < mXBounds.max) {
 
@@ -340,26 +360,42 @@ public class LineChartRenderer extends LineRadarRenderer {
                     if (e == null) break;
 
                     if (isDrawSteppedEnabled) {
-                        mLineBuffer[2] = e.getX();
-                        mLineBuffer[3] = mLineBuffer[1];
-                        mLineBuffer[4] = mLineBuffer[2];
-                        mLineBuffer[5] = mLineBuffer[3];
-                        mLineBuffer[6] = e.getX();
-                        mLineBuffer[7] = e.getY() * phaseY;
+                        points.add(e.getX());
+                        points.add(mLineBuffer[1]);
+                        points.add(mLineBuffer[2]);
+                        points.add(mLineBuffer[3]);
+                        points.add(e.getX());
+                        points.add(e.getY() * phaseY);
+
+//                        mLineBuffer[2] = e.getX();
+//                        mLineBuffer[3] = mLineBuffer[1];
+//                        mLineBuffer[4] = mLineBuffer[2];
+//                        mLineBuffer[5] = mLineBuffer[3];
+//                        mLineBuffer[6] = e.getX();
+//                        mLineBuffer[7] = e.getY() * phaseY;
                     } else {
-                        mLineBuffer[2] = e.getX();
-                        mLineBuffer[3] = e.getY() * phaseY;
+                        points.add(e.getX());
+                        points.add(e.getY() * phaseY);
+
+//                        mLineBuffer[2] = e.getX();
+//                        mLineBuffer[3] = e.getY() * phaseY;
                     }
 
                 } else {
-                    mLineBuffer[2] = mLineBuffer[0];
-                    mLineBuffer[3] = mLineBuffer[1];
+                    points.add(points.get(0));
+                    points.add(points.get(1));
+
+//                    mLineBuffer[2] = mLineBuffer[0];
+//                    mLineBuffer[3] = mLineBuffer[1];
                 }
 
-                trans.pointValuesToPixel(mLineBuffer);
+//                trans.pointValuesToPixel(mLineBuffer);
 
-                if (!mViewPortHandler.isInBoundsRight(mLineBuffer[0]))
+                if (!mViewPortHandler.isInBoundsRight(points.get(0)))
                     break;
+
+//                if (!mViewPortHandler.isInBoundsRight(mLineBuffer[0]))
+//                    break;
 
                 // make sure the lines don't do shitty things outside
                 // bounds
@@ -369,8 +405,21 @@ public class LineChartRenderer extends LineRadarRenderer {
                     continue;*/
 
                 // get the color that is set for this line-segment
-                mRenderPaint.setColor(dataSet.getColor(j));
+//                mRenderPaint.setColor(dataSet.getColor(j));
 
+//                canvas.drawLines(mLineBuffer, 0, pointsPerEntryPair * 2, mRenderPaint);
+            }
+
+            for (int i = 0, n = map.size(); i < n; i++)
+            {
+                int color = map.keyAt(i);
+                points = map.get(color);
+
+                float[] values = new float[points.size()];
+                for (int k = 0; k < points.size(); k++)
+                    values[i] = points.get(k);
+
+                mRenderPaint.setColor(color);
                 canvas.drawLines(mLineBuffer, 0, pointsPerEntryPair * 2, mRenderPaint);
             }
 
