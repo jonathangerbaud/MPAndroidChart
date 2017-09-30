@@ -92,19 +92,21 @@ public class PerformanceLineChart extends DemoBase implements OnSeekBarChangeLis
     private void setData(int count, float range) {
 
         ArrayList<Entry> yVals = new ArrayList<Entry>();
-
+        ArrayList<Integer> colors = new ArrayList<>();
         for (int i = 0; i < count; i++) {
             float mult = (range + 1);
             float val = (float) (Math.random() * mult) + 3;// + (float)
                                                            // ((mult *
                                                            // 0.1) / 10);
             yVals.add(new Entry(i * 0.001f, val));
+            colors.add(i % 2 == 0 ? 0xFFFF0000 : 0xFF00FF00);
         }
 
         // create a dataset and give it a type
         LineDataSet set1 = new LineDataSet(yVals, "DataSet 1");
         
-        set1.setColor(Color.BLACK);
+        //set1.setColor(Color.BLACK);
+        set1.setColors(colors);
         set1.setLineWidth(0.5f);
         set1.setDrawValues(false);
         set1.setDrawCircles(false);

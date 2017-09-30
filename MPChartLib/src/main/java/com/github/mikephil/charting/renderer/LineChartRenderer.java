@@ -325,8 +325,16 @@ public class LineChartRenderer extends LineRadarRenderer {
             drawLinearFill(c, dataSet, trans, mXBounds);
         }
 
+        SparseArray<ArrayList<Float>> map = new SparseArray<>();
+        ArrayList<Float> points;
+
+        for (Integer color : dataSet.getColors())
+        {
+            map.append(color, new ArrayList<Float>());
+        }
+
         // more than 1 color
-        if (dataSet.getColors().size() > 1) {
+        /*if (dataSet.getColors().size() > 1) {
 
             SparseArray<ArrayList<Float>> map = new SparseArray<>();
 
@@ -391,18 +399,18 @@ public class LineChartRenderer extends LineRadarRenderer {
 
                 //trans.pointValuesToPixel(mLineBuffer);
 
-                if (!mViewPortHandler.isInBoundsRight(points.get(0)))
-                    break;
+                //if (!mViewPortHandler.isInBoundsRight(points.get(0)))
+                  //  break;
 
 //                if (!mViewPortHandler.isInBoundsRight(mLineBuffer[0]))
 //                    break;
 
                 // make sure the lines don't do shitty things outside
                 // bounds
-                /*if (!mViewPortHandler.isInBoundsLeft(mLineBuffer[2])
+                if (!mViewPortHandler.isInBoundsLeft(mLineBuffer[2])
                         || (!mViewPortHandler.isInBoundsTop(mLineBuffer[1]) && !mViewPortHandler
                         .isInBoundsBottom(mLineBuffer[3])))
-                    continue;*/
+                    continue;
 
                 // get the color that is set for this line-segment
 //                mRenderPaint.setColor(dataSet.getColor(j));
@@ -426,7 +434,7 @@ public class LineChartRenderer extends LineRadarRenderer {
             }
 
         } else { // only one color per dataset
-
+        */
             if (mLineBuffer.length < Math.max((entryCount) * pointsPerEntryPair, pointsPerEntryPair) * 2)
                 mLineBuffer = new float[Math.max((entryCount) * pointsPerEntryPair, pointsPerEntryPair) * 4];
 
@@ -444,31 +452,49 @@ public class LineChartRenderer extends LineRadarRenderer {
 
                     if (e1 == null || e2 == null) continue;
 
-                    mLineBuffer[j++] = e1.getX();
-                    mLineBuffer[j++] = e1.getY() * phaseY;
+                    points = map.get(dataSet.getColor(x));
+
+                    points.add(e1.getX());
+                    points.add(e1.getY() * phaseY);
 
                     if (isDrawSteppedEnabled) {
-                        mLineBuffer[j++] = e2.getX();
-                        mLineBuffer[j++] = e1.getY() * phaseY;
-                        mLineBuffer[j++] = e2.getX();
-                        mLineBuffer[j++] = e1.getY() * phaseY;
+                        points.add(e2.getX());
+                        points.add(e1.getY() * phaseY);
+                        points.add(e2.getX());
+                        points.add(e1.getY() * phaseY);
                     }
 
-                    mLineBuffer[j++] = e2.getX();
-                    mLineBuffer[j++] = e2.getY() * phaseY;
+                    points.add(e2.getX());
+                    points.add(e2.getY() * phaseY);
                 }
 
-                if (j > 0) {
-                    trans.pointValuesToPixel(mLineBuffer);
+                //if (j > 0) {
+
+                    for (int i = 0, n = map.size(); i < n; i++)
+                    {
+                        Log.d("LineChartRenderer", "drawLinear: ");
+                        int color = map.keyAt(i);
+                        points = map.get(color);
+
+                        float[] values = new float[points.size()];
+                        for (int k = 0; k < points.size(); k++)
+                            values[k] = points.get(k);
+
+                        trans.pointValuesToPixel(values);
+
+                        mRenderPaint.setColor(color);
+                        canvas.drawLines(values/*, 0, pointsPerEntryPair * 2*/, mRenderPaint);
+                    }
+                    /*trans.pointValuesToPixel(mLineBuffer);
 
                     final int size = Math.max((mXBounds.range + 1) * pointsPerEntryPair, pointsPerEntryPair) * 2;
 
                     mRenderPaint.setColor(dataSet.getColor());
 
-                    canvas.drawLines(mLineBuffer, 0, size, mRenderPaint);
-                }
+                    canvas.drawLines(mLineBuffer, 0, size, mRenderPaint);*/
+                //}
             }
-        }
+        //}
 
         mRenderPaint.setPathEffect(null);
     }
