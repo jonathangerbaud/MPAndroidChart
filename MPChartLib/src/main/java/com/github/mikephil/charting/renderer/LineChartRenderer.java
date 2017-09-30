@@ -330,7 +330,7 @@ public class LineChartRenderer extends LineRadarRenderer {
 
         for (Integer color : dataSet.getColors())
         {
-            map.append(color, new ArrayList<Float>());
+            map.put(color, new ArrayList<Float>());
         }
 
         // more than 1 color
@@ -444,37 +444,46 @@ public class LineChartRenderer extends LineRadarRenderer {
 
             if (e1 != null) {
 
-                int j = 0;
-                for (int x = mXBounds.min; x <= mXBounds.range + mXBounds.min; x++) {
+                for (int j = mXBounds.min; j <= mXBounds.range + mXBounds.min; j++) {
 
-                    e1 = dataSet.getEntryForIndex(x == 0 ? 0 : (x - 1));
-                    e2 = dataSet.getEntryForIndex(x);
+                    e1 = dataSet.getEntryForIndex(j);
+                    if (e1 == null) continue;
 
-                    if (e1 == null || e2 == null) continue;
-
-                    points = map.get(dataSet.getColor(x));
+                    points = map.get(dataSet.getColor(j));
 
                     points.add(e1.getX());
                     points.add(e1.getY() * phaseY);
 
-                    if (isDrawSteppedEnabled) {
-                        points.add(e2.getX());
-                        points.add(e1.getY() * phaseY);
-                        points.add(e2.getX());
+                    if (j < mXBounds.max) {
+
+                        e2 = dataSet.getEntryForIndex(j + 1);
+                        Log.d("LineChartRenderer", "drawLinear: " + e1.getY() + " " + e2.getY() + dataSet.getColor(j));
+                        if (e2 == null) break;
+
+                        if (isDrawSteppedEnabled) {
+                            points.add(e2.getX());
+                            points.add(e1.getY() * phaseY);
+                            points.add(e2.getX());
+                            points.add(e1.getY() * phaseY);
+                            points.add(e2.getX());
+                            points.add(e2.getY() * phaseY);
+                        } else {
+                            points.add(e2.getX());
+                            points.add(e2.getY() * phaseY);
+                        }
+
+                    } else {
+                        points.add(e1.getX());
                         points.add(e1.getY() * phaseY);
                     }
-
-                    points.add(e2.getX());
-                    points.add(e2.getY() * phaseY);
                 }
 
                 //if (j > 0) {
 
                     for (int i = 0, n = map.size(); i < n; i++)
                     {
-                        Log.d("LineChartRenderer", "drawLinear: ");
                         int color = map.keyAt(i);
-                        points = map.get(color);
+                        points = map.valueAt(i);
 
                         float[] values = new float[points.size()];
                         for (int k = 0; k < points.size(); k++)
@@ -483,7 +492,8 @@ public class LineChartRenderer extends LineRadarRenderer {
                         trans.pointValuesToPixel(values);
 
                         mRenderPaint.setColor(color);
-                        canvas.drawLines(values/*, 0, pointsPerEntryPair * 2*/, mRenderPaint);
+                        final int size = Math.max((mXBounds.range + 1) * pointsPerEntryPair, pointsPerEntryPair) * 2;
+                        canvas.drawLines(values/*, 0, size*/, mRenderPaint);
                     }
                     /*trans.pointValuesToPixel(mLineBuffer);
 

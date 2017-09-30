@@ -3,6 +3,7 @@ package com.xxmassdeveloper.mpchartexample;
 
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.WindowManager;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
@@ -93,14 +94,21 @@ public class PerformanceLineChart extends DemoBase implements OnSeekBarChangeLis
 
         ArrayList<Entry> yVals = new ArrayList<Entry>();
         ArrayList<Integer> colors = new ArrayList<>();
-        for (int i = 0; i < count; i++) {
+        for (int i = 1; i < count; i++) {
             float mult = (range + 1);
             float val = (float) (Math.random() * mult) + 3;// + (float)
                                                            // ((mult *
                                                            // 0.1) / 10);
-            yVals.add(new Entry(i * 0.001f, val));
-            colors.add(i % 2 == 0 ? 0xFFFF0000 : 0xFF00FF00);
+            yVals.add(new Entry(i, val));
         }
+
+        float val, next;
+        for (int i = 0; i < count - 2; i++) {
+            val = yVals.get(i).getY();
+            next = yVals.get(i+1).getY();
+            colors.add(next < val ? 0xFFFF0000 : 0xFF00FF00);
+        }
+
 
         // create a dataset and give it a type
         LineDataSet set1 = new LineDataSet(yVals, "DataSet 1");
